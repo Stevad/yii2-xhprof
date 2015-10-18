@@ -20,6 +20,6 @@
         }
     ],
     "autoload": {
-        "psr-4": {"stevad\\yii2xhprof": ""}
+        "psr-4": {"stevad\\yii2xhprof\\": ""}
     }
 }

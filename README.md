@@ -66,7 +66,7 @@ Component configuration
 Extension provide next configuration options for Yii component:
 
 - `enabled` - enable/disable profiler component.
-- `reportPathAlias` - path alias to the directory to store JSON file with previous profiler runs. Default: `application.runtime.xhprof`
+- `reportPathAlias` - path alias to the directory to store JSON file with previous profiler runs. Default: `@runtime/xhprof`
 - `maxReportsCount` - number of profile reports to store. Default: `25`.
 - `manualStart` - flag to manually start profiler from desired place. Default: `false`.
 - `manualStop` - flag to manually stop profiler from desired place. Default: `false`.
@@ -79,7 +79,7 @@ Extension provide next configuration options for Yii component:
 - `flagNoBuiltins` - enable/disable XHPROF_FLAGS_NO_BUILTINS flag for profiler ([XHProf constants](http://php.net/manual/xhprof.constants.php)). Default: `true`.
 - `flagCpu` - enable/disable XHPROF_FLAGS_CPU flag for profiler ([XHProf constants](http://php.net/manual/xhprof.constants.php)). Default: `false`.
 - `flagMemory` - enable/disable XHPROF_FLAGS_MEMORY flag for profiler ([XHProf constants](http://php.net/manual/xhprof.constants.php)). Default: `true`.
-- `blacklistedRoutes` - list of routes which profiler should ignore. Allowed wildcard `*` which means 'any alphanumeric value and one of this: `/`, `.`, `_`, `-`. Default: `array('debug*')` (to ignore requests to the debug extension pages).
+- `blacklistedRoutes` - list of routes which profiler should ignore. Allowed wildcard `*` which means 'any alphanumeric value and one of this: `/`, `.`, `_`, `-`. Default: `['debug*']` (to ignore requests to the debug extension pages).
 
 XHProf class configuration
 -------------

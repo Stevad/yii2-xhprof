@@ -33,7 +33,7 @@ class XHProfComponent extends \yii\base\Component implements BootstrapInterface
      * Path alias to directory with reports file
      * @var string
      */
-    public $reportPathAlias = 'application.runtime.xhprof';
+    public $reportPathAlias = '@runtime/xhprof';
 
     /**
      * How many reports to store in history file

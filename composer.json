@@ -1,0 +1,25 @@
+{
+    "name": "stevad/yii2-xhprof",
+    "description": "Simple extension to profile Yii Framework 2.x applications with Facebook XHProf",
+    "keywords": ["yii", "yii2", "extension", "profiling", "debug", "xhprof"],
+    "homepage": "https://github.com/stevad/yii2-xhprof",
+    "type": "library",
+    "license": "BSD-3-Clause",
+    "require": {
+        "php": ">=5.4.0",
+        "ext-xhprof": "*",
+        "yiisoft/yii2": "2.0.*"
+    },
+    "require-dev": {
+        "yiisoft/yii2-debug": "2.0.*"
+    },
+    "authors": [
+        {
+            "name": "Vadym Stepanov",
+            "email": "vadim.stepanov.ua@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"stevad\\yii2xhprof": ""}
+    }
+}

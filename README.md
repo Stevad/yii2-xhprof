@@ -27,7 +27,7 @@ return [
     ],
     'components' => [
         'xhprof' => [
-            'class' => 'stevad\yii2xhprof\XHProfComponent', // if you install to protected/extensions
+            'class' => 'stevad\yii2xhprof\XHProfComponent',
             'libPath' => '/full/path/to/xhprof_lib',
             'htmlReportBaseUrl' => 'http://url.path.to/xhprof_html',
         ],
@@ -48,7 +48,7 @@ return [
             // ... other debug config options ...
             'panels' => [
                 'xhprof' => [
-                    'class' => 'ext.yii-xhprof.XHProfPanel' // if you install to protected/extensions
+                    'class' => 'stevad\yii2xhprof\XHProfPanel'
                 ]
             ]
         ],

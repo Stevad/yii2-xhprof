@@ -176,10 +176,15 @@ class XHProfComponent extends \yii\base\Component implements BootstrapInterface
     {
         $result = false;
         $routes = $this->blacklistedRoutes;
-        if (!isset(Yii::$app->controller->id)) {
-            return false;
+        if (is_a(Yii::$app, 'yii\web\Application')) {
+            $requestRoute = Yii::$app->getUrlManager()->parseRequest(Yii::$app->getRequest())[0];
+        } else {
+            $request = Yii::$app->getRequest()->getParams();
+            if (!isset($request[0])) {
+                return true;
+            }
+            $requestRoute = $request[0];
         }
-        $requestRoute = Yii::$app->controller->id;
 
         foreach ($routes as $route) {
             $route = str_replace('*', '([a-zA-Z0-9\/\-\._]{0,})', str_replace('/', '\/', '^' . $route));

@@ -176,6 +176,9 @@ class XHProfComponent extends \yii\base\Component implements BootstrapInterface
     {
         $result = false;
         $routes = $this->blacklistedRoutes;
+        if (!isset(Yii::$app->controller->id)) {
+            return false;
+        }
         $requestRoute = Yii::$app->controller->id;
 
         foreach ($routes as $route) {
@@ -327,12 +330,17 @@ class XHProfComponent extends \yii\base\Component implements BootstrapInterface
         }
 
         if ($this->reportInfo === null) {
-            $request = Yii::$app->getRequest();
+            if (is_a(Yii::$app, 'yii\web\Application')) {
+                $request = Yii::$app->getRequest();
+                $url     = $request->getHostInfo() . $request->getUrl();
+            } else {
+                $url = Yii::$app->controller->id . '/' . Yii::$app->controller->action->id;
+            }
             $this->reportInfo = [
                 'enabled' => true,
                 'runId' => XHProf::getInstance()->getRunId(),
                 'ns' => XHProf::getInstance()->getRunNamespace(),
-                'url' => $request->getHostInfo() . $request->getUrl(),
+                'url'     => $url,
                 'time' => microtime(true)
             ];
         }

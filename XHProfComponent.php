@@ -176,11 +176,19 @@ class XHProfComponent extends \yii\base\Component implements BootstrapInterface
     {
         $result = false;
         $routes = $this->blacklistedRoutes;
-        $requestRoute = Yii::$app->getUrlManager()->parseRequest(Yii::$app->getRequest());
+        if (is_a(Yii::$app, 'yii\web\Application')) {
+            $requestRoute = Yii::$app->getUrlManager()->parseRequest(Yii::$app->getRequest())[0];
+        } else {
+            $request = Yii::$app->getRequest()->getParams();
+            if (!isset($request[0])) {
+                return true;
+            }
+            $requestRoute = $request[0];
+        }
 
         foreach ($routes as $route) {
             $route = str_replace('*', '([a-zA-Z0-9\/\-\._]{0,})', str_replace('/', '\/', '^' . $route));
-            if (preg_match("/{$route}/", $requestRoute[0]) !== 0) {
+            if (preg_match("/{$route}/", $requestRoute) !== 0) {
                 $result = true;
                 break;
             }
@@ -327,12 +335,17 @@ class XHProfComponent extends \yii\base\Component implements BootstrapInterface
         }
 
         if ($this->reportInfo === null) {
-            $request = Yii::$app->getRequest();
+            if (is_a(Yii::$app, 'yii\web\Application')) {
+                $request = Yii::$app->getRequest();
+                $url     = $request->getHostInfo() . $request->getUrl();
+            } else {
+                $url = Yii::$app->controller->id . '/' . Yii::$app->controller->action->id;
+            }
             $this->reportInfo = [
                 'enabled' => true,
                 'runId' => XHProf::getInstance()->getRunId(),
                 'ns' => XHProf::getInstance()->getRunNamespace(),
-                'url' => $request->getHostInfo() . $request->getUrl(),
+                'url'     => $url,
                 'time' => microtime(true)
             ];
         }

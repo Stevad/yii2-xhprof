@@ -1,6 +1,6 @@
 <?php
 /* @var \yii\web\View $this */
-/* @var \stevad\yii2xhprof\XHProfPanel $panel */
+/* @var \stevad\xhprof\XHProfPanel $panel */
 /* @var array $urls */
 /* @var array $reports */
 /* @var array $run */
@@ -18,7 +18,7 @@
     <p>XHProf was not used for this request.</p>
 <?php endif; ?>
 
-<h4>Previous runs (<?php echo Yii::$app->get('xhprof')->maxReportsCount ?> items max):</h4>
+<h4>Previous runs (<?php echo $panel->getComponent()->maxReportsCount ?> items max):</h4>
 <p>You can open report, callgraph or diff with current run for any of the previous profiler runs. Also you can compare
     any previous runs between themselves (check radios and click on button "Compare selected").</p>
 

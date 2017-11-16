@@ -1,11 +1,13 @@
 <?php
 
-namespace stevad\yii2xhprof;
+namespace stevad\xhprof;
 
 /**
  * Class OverlayAsset
  * Asset for overlay
+ *
  * @author Vadym Stepanov <vadim.stepanov.ua@gmail.com>
+ * @date 16.11.2017
  */
 class OverlayAsset extends DebugPanelAsset
 {

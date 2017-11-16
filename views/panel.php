@@ -1,6 +1,6 @@
 <?php
 /* @var \yii\web\View $this */
-/* @var \stevad\yii2xhprof\XHProfPanel $panel */
+/* @var \stevad\xhprof\XHProfPanel $panel */
 /* @var array $urls */
 /* @var bool $enabled */
 ?>
@@ -10,6 +10,6 @@
         <a href="<?php echo $urls['report'] ?>" target="_blank"><span class="label label-info">Report</span></a>
         <a href="<?php echo $urls['callgraph'] ?>" target="_blank"><span class="label label-info">Callgraph</span></a>
     <?php else: ?>
-        <span class="label">Not started</span>
+        <span class="label">Not executed</span>
     <?php endif; ?>
 </div>

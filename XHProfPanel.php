@@ -1,6 +1,6 @@
 <?php
 
-namespace stevad\yii2xhprof;
+namespace stevad\xhprof;
 
 use Yii;
 use yii\web\View;
@@ -10,6 +10,7 @@ use yii\web\View;
  * ability to compare results between each others.
  *
  * @author Vadym Stepanov <vadim.stepanov.ua@gmail.com>
+ * @date 16.11.2017
  */
 class XHProfPanel extends \yii\debug\Panel
 {
@@ -21,17 +22,17 @@ class XHProfPanel extends \yii\debug\Panel
 
     public function getDetail()
     {
-        if (Yii::$app->get('xhprof', false) === null) {
+        if ($this->getComponent() === null) {
             return Yii::$app->view->render('@yii2-xhprof/views/details_disabled_component.php');
         }
 
-        $reports = Yii::$app->get('xhprof')->loadReports();
-        rsort($reports);
+        $reports = $this->getComponent()->loadReports();
+        \rsort($reports);
 
         $urlTemplates = [
-            'report' => Yii::$app->get('xhprof')->getReportBaseUrl() . '/' . XHProf::$urlTemplates['report'],
-            'callgraph' => Yii::$app->get('xhprof')->getReportBaseUrl() . '/' . XHProf::$urlTemplates['callgraph'],
-            'diff' => Yii::$app->get('xhprof')->getReportBaseUrl() . '/' . XHProf::$urlTemplates['diff']
+            'report' => $this->getComponent()->getReportBaseUrl() . '/' . XHProf::$urlTemplates['report'],
+            'callgraph' => $this->getComponent()->getReportBaseUrl() . '/' . XHProf::$urlTemplates['callgraph'],
+            'diff' => $this->getComponent()->getReportBaseUrl() . '/' . XHProf::$urlTemplates['diff'],
         ];
 
         $js = <<<EOD
@@ -56,21 +57,21 @@ EOD;
             'enabled' => $data['enabled'],
             'run' => [
                 'id' => $data['runId'],
-                'ns' => $data['ns']
+                'ns' => $data['ns'],
             ],
             'urls' => $urls,
-            'reports' => $reports
+            'reports' => $reports,
         ]);
     }
 
 
     public function getSummary()
     {
-        if (Yii::$app->get('xhprof', false) === null) {
+        if ($this->getComponent() === null) {
             return null;
         }
 
-        XHProf::getInstance()->setHtmlUrlPath(Yii::$app->get('xhprof')->getReportBaseUrl());
+        XHProf::getInstance()->setHtmlUrlPath($this->getComponent()->getReportBaseUrl());
 
         $urls = [];
         $data = $this->data;
@@ -82,17 +83,27 @@ EOD;
         return Yii::$app->view->render('@yii2-xhprof/views/panel', [
             'panel' => $this,
             'enabled' => $data['enabled'],
-            'urls' => $urls
+            'urls' => $urls,
         ]);
     }
 
 
     public function save()
     {
-        if (Yii::$app->get('xhprof', false) === null) {
+        if ($this->getComponent() === null) {
             return null;
         }
 
-        return Yii::$app->get('xhprof')->getReportInfo();
+        return $this->getComponent()->getReportInfo();
+    }
+
+    /**
+     * Get profiler component
+     *
+     * @return XHProfComponent
+     */
+    public function getComponent()
+    {
+        return Yii::$app->get('xhprof', false);
     }
 }

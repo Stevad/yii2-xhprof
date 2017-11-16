@@ -5,7 +5,7 @@ Simple extension to use XHProf with Yii Framework 2.x. This is the updated versi
 
 Bundled with debug panel for official [yii2-debug](https://github.com/yiisoft/yii2-debug) extension.
 
-By default profile starts on `Application::EVENT_BEFORE_REQUEST` event and stops on `Application::EVENT_AFTER_REQUEST` event. You can change this behavior and manually start and stop profiler.
+By default profile starts during bootstrap process and stops in PHP shutdown function. You can change this behavior and manually start and stop profiler.
 
 For license information check the [LICENSE](LICENSE.md) file.
 
@@ -68,9 +68,9 @@ Extension provide next configuration options for Yii component:
 - `enabled` - enable/disable profiler component.
 - `reportPath` - filesystem path or path alias to the directory to store JSON file with previous profiler runs. Default: `@runtime/xhprof`
 - `maxReportsCount` - number of profile reports to store. Default: `25`.
-- `autoStart` - flag to automatically start profiler on `Application::EVENT_BEFORE_REQUEST` event. Default: `true`.
-- `autoStop` - flag to automatically stop profiler on `Application::EVENT_AFTER_REQUEST` event. Default: `true`.
-- `forceStop` - flag to force stop profiler on `Application::EVENT_AFTER_REQUEST` event if `autoStop` is disabled and profiler was manually started and is still running. Default: `true`.
+- `autoStart` - flag to automatically start profiler during application bootstrap process. Default: `true`.
+- `autoStop` - flag to automatically stop profiler in PHP shutdown function. Default: `true`.
+- `forceStop` - flag to force stop profiler during PHP shutdown if `autoStop` is disabled and profiler was manually started and is still running. Default: `true`.
 - `triggerGetParam` - name of the GET param to manually trigger profiler to start. Default: no value, profiler runs on each request.
 - `showOverlay` - flag to display overlay on page with links to report and callgraph result for current profiler run (if allowed). Not required to be `true` if you are using bundled panel for yii2-debug extension. Default: `true`.
 - `libPath` - direct filesystem path or path alias to the directory with `xhprof_lib` contents.
@@ -123,11 +123,23 @@ To manual start you need to write some kind of next code:
 To manual stop you need to write next code:
 
 ```php
-// stop profiler
+// stop profiler and get URLs to results and callgraph
 $urls = \stevad\xhprof\XHProf::getInstance()->stop();
+
+// Links:
+// $urls[\stevad\xhprof\XHProf::TYPE_REPORT]
+// $urls[\stevad\xhprof\XHProf::TYPE_CALLGRAPH]
 ```
 
 _Note:_ If you use `XHProf` class (with or without this extension) - all profile results can be found on XHProf UI page (it's by default by xhprof developers).
+
+
+Note for PHP 7 and XHProf
+-------------
+
+If you want to use this extension with PHP 7, you can use next forked version of xhprof extension: https://github.com/rustjason/xhprof.
+This extension was tested on PHP 7.1.11 with extension built from provided repository.
+
 
 Author
 -------------

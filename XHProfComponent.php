@@ -7,18 +7,16 @@ use yii\base\BootstrapInterface;
 use yii\base\ErrorException;
 use yii\helpers\FileHelper;
 use yii\helpers\Json;
-use yii\web\Application;
 use yii\web\View;
 
 /**
  * XHProf application component for Yii Framework 2.x.
  * Uses original XHProf UI to display results.
  *
- * Designed to profile application from `Application::EVENT_BEFORE_REQUEST` to `Application::EVENT_AFTER_REQUEST`
- * events. You can also manually start and stop profiler in any place of your code. By default component save
- * last 25 reports. You can see them in bundled debug panel for official yii2-debug extension
- * (https://github.com/yiisoft/yii2-debug). All reports are also available by default in XHProf UI
- * (e.g. http://some.path.to/xhprof_html)
+ * Designed to profile application from bootstrap until executing PHP shutdown function. You can also manually start
+ * and stop profiler in any place of your code. By default component save last 25 reports. You can see them in bundled
+ * debug panel for official yii2-debug extension (https://github.com/yiisoft/yii2-debug). All reports are also
+ * available by default in XHProf UI (e.g. http://some.path.to/xhprof_html)
  *
  * @author Vadym Stepanov <vadim.stepanov.ua@gmail.com>
  * @date 16.11.2017
@@ -47,23 +45,22 @@ class XHProfComponent extends \yii\base\Component implements BootstrapInterface
     public $maxReportsCount = 25;
 
     /**
-     * Flag to automatically start profiling on `Application::EVENT_BEFORE_REQUEST` event. Set to false if you want to
-     * manually start XHProf and start profiling.
+     * Flag to automatically start profiling during component bootstrap. Set to false if you want to manually start
+     * XHProf and start profiling.
      *
      * @var bool
      */
     public $autoStart = true;
 
     /**
-     * Flag to automatically stop running profiling session on `Application::EVENT_AFTER_REQUEST` event.
+     * Flag to automatically stop running profiling session in shutdown function
      *
      * @var bool
      */
     public $autoStop = true;
 
     /**
-     * Force terminate profile process on `Application::EVENT_AFTER_REQUEST` event if it is still running with
-     * disabled `autoStop` flag.
+     * Force terminate profile process in shutdown function if it is still running with disabled `autoStop` flag
      *
      * @var bool
      */
@@ -176,8 +173,23 @@ class XHProfComponent extends \yii\base\Component implements BootstrapInterface
             throw new ErrorException('Lib path cannot be empty');
         }
 
+        $libPath = $this->libPath;
+        if (\strpos($libPath, '@') === 0) {
+            $libPath = Yii::getAlias($libPath);
+        }
+
+        XHProf::getInstance()->configure([
+            'flagNoBuiltins' => $this->flagNoBuiltins,
+            'flagCpu' => $this->flagCpu,
+            'flagMemory' => $this->flagMemory,
+            'ignoredFunctions' => $this->ignoredFunctions,
+            'runNamespace' => Yii::$app->id,
+            'libPath' => $libPath,
+            'htmlUrlPath' => $this->getReportBaseUrl(),
+        ]);
+
         if ($this->autoStart) {
-            $app->on(Application::EVENT_BEFORE_REQUEST, [$this, 'beginProfiling']);
+            XHProf::getInstance()->run();
         }
 
         if ($this->showOverlay && !$app->request->isAjax) {
@@ -185,7 +197,7 @@ class XHProfComponent extends \yii\base\Component implements BootstrapInterface
             $app->view->on(View::EVENT_END_BODY, [$this, 'appendResultsOverlay']);
         }
 
-        $app->on(Application::EVENT_AFTER_REQUEST, [$this, 'stopProfiling']);
+        \register_shutdown_function([$this, 'stopProfiling']);
     }
 
     /**
@@ -225,21 +237,6 @@ class XHProfComponent extends \yii\base\Component implements BootstrapInterface
      */
     public function beginProfiling()
     {
-        $libPath = $this->libPath;
-        if (\strpos($libPath, '@') === 0) {
-            $libPath = Yii::getAlias($libPath);
-        }
-
-        XHProf::getInstance()->configure([
-            'flagNoBuiltins' => $this->flagNoBuiltins,
-            'flagCpu' => $this->flagCpu,
-            'flagMemory' => $this->flagMemory,
-            'ignoredFunctions' => $this->ignoredFunctions,
-            'runNamespace' => Yii::$app->id,
-            'libPath' => $libPath,
-            'htmlUrlPath' => $this->getReportBaseUrl(),
-        ]);
-
         XHProf::getInstance()->run();
     }
 

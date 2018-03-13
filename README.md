@@ -78,7 +78,7 @@ Extension provide next configuration options for Yii component:
 - `flagNoBuiltins` - enable/disable XHPROF_FLAGS_NO_BUILTINS flag for profiler ([XHProf constants](http://php.net/manual/xhprof.constants.php)). Default: `true`.
 - `flagCpu` - enable/disable XHPROF_FLAGS_CPU flag for profiler ([XHProf constants](http://php.net/manual/xhprof.constants.php)). Default: `false`.
 - `flagMemory` - enable/disable XHPROF_FLAGS_MEMORY flag for profiler ([XHProf constants](http://php.net/manual/xhprof.constants.php)). Default: `true`.
-- `ignoredFunctions` - list of functions to ignore during profiling. Empty by default.
+- `ignoredFunctions` - list of functions to ignore during profiling. Empty by default. *Note*: this option is not supported by `tideways_xhprof` extension.
 - `blacklistedRoutes` - list of routes which profiler should ignore. Allowed wildcard `*` which means 'any alphanumeric value and one of this: `/`, `.`, `_`, `-`. Default: `['debug*']` (to ignore requests to the debug extension pages).
 
 XHProf class configuration
@@ -140,8 +140,10 @@ Note for PHP 7 and XHProf
 If you want to use this extension with PHP 7, you can use next forked version of xhprof extension: https://github.com/rustjason/xhprof.
 This extension was tested on PHP 7.1.11 with extension built from provided repository.
 
+Another better option - is to use officially ported xhprof extension by [tideways.io](https://tideways.io) - https://github.com/tideways/php-xhprof-extension.
+
 
 Author
 -------------
 
-Copyright (c) 2015-2017 by Stevad.
+Copyright (c) 2015-2018 by Stevad.

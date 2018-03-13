@@ -6,6 +6,12 @@ Changelog
 - ... here is new notes ...
 
 
+#### 1.1.0 - 13.03.2018
+
+- Added support for extension by https://tideways.io
+- Updated note about using XHProf on PHP 7.x
+
+
 #### 1.0.0 - 16.11.2017
 
 - First stable release

@@ -7,8 +7,10 @@ namespace stevad\xhprof;
  * Simple wrapper for XHProf with basic functionality to configure and run/stop profiling.
  * Also provide methods to get proper URL for report, callgraph or diff results.
  *
+ * Supported extensions: xhprof, tideways_xhprof
+ *
  * @author Vadym Stepanov <vadim.stepanov.ua@gmail.com>
- * @date 16.11.2017
+ * @date 13.03.2018
  */
 class XHProf
 {
@@ -18,6 +20,9 @@ class XHProf
     const TYPE_REPORT = 'report';
     const TYPE_CALLGRAPH = 'callgraph';
     const TYPE_DIFF = 'diff';
+
+    const EXT_XHPROF = 'xhprof';
+    const EXT_TIDEWAYS_XHPROF = 'tideways_xhprof';
 
     /**
      * List of templates to get URL for report, callgraph or diff results
@@ -108,17 +113,30 @@ class XHProf
      */
     private $runId;
 
+    /**
+     * @var string
+     */
+    private $selectedExtension;
+
 
     /**
      * Final construct to prevent from overloading.
-     * Checks if xhprof extension is available
+     * Checks if xhprof or tideways_xhprof extension is available
      *
      * @throws \RuntimeException
      */
     final protected function __construct()
     {
-        if (!\extension_loaded('xhprof')) {
-            throw new \RuntimeException('XHProf extension is not available');
+        $checkExtensions = [self::EXT_XHPROF, self::EXT_TIDEWAYS_XHPROF];
+        foreach ($checkExtensions as $extName) {
+            if (\extension_loaded($extName)) {
+                $this->selectedExtension = $extName;
+                break;
+            }
+        }
+
+        if ($this->selectedExtension === null) {
+            throw new \RuntimeException('xhprof or tideways_xhprof extension is not available');
         }
     }
 
@@ -433,7 +451,11 @@ class XHProf
             $options['ignored_functions'] = $functions;
         }
 
-        xhprof_enable($flags, $options);
+        if ($this->selectedExtension === self::EXT_XHPROF) {
+            xhprof_enable($flags, $options);
+        } else {
+            tideways_xhprof_enable($flags);
+        }
 
         $this->runStatus = self::STATUS_RUNNING;
         $this->started = true;
@@ -448,13 +470,19 @@ class XHProf
     {
         $flags = 0;
         if ($this->flagNoBuiltins) {
-            $flags += XHPROF_FLAGS_NO_BUILTINS;
+            $flags += $this->selectedExtension === self::EXT_XHPROF
+                ? XHPROF_FLAGS_NO_BUILTINS
+                : TIDEWAYS_XHPROF_FLAGS_NO_BUILTINS;
         }
         if ($this->flagCpu) {
-            $flags += XHPROF_FLAGS_CPU;
+            $flags += $this->selectedExtension === self::EXT_XHPROF
+                ? XHPROF_FLAGS_CPU
+                : TIDEWAYS_XHPROF_FLAGS_CPU;
         }
         if ($this->flagMemory) {
-            $flags += XHPROF_FLAGS_MEMORY;
+            $flags += $this->selectedExtension === self::EXT_XHPROF
+                ? XHPROF_FLAGS_MEMORY
+                : TIDEWAYS_XHPROF_FLAGS_MEMORY;
         }
 
         return $flags;
@@ -475,7 +503,11 @@ class XHProf
         $runId = $this->getRunId();
         $runNamespace = $this->getRunNamespace();
 
-        $data = xhprof_disable();
+        if ($this->selectedExtension === self::EXT_XHPROF) {
+            $data = xhprof_disable();
+        } else {
+            $data = tideways_xhprof_disable();
+        }
 
         include_once($this->libPath . '/utils/xhprof_lib.php');
         include_once($this->libPath . '/utils/xhprof_runs.php');

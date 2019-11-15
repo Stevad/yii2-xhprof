@@ -86,6 +86,13 @@ class XHProf
     private $htmlUrlPath;
 
     /**
+     * Default directory to store XHProf runs. If not specified - will use 'sys_get_temp_dir()' value
+     *
+     * @var string|null
+     */
+    private $tmpPath;
+
+    /**
      * Flag to get info if XHProf was started
      *
      * @var bool
@@ -170,6 +177,10 @@ class XHProf
             if (\method_exists($this, $methodName)) {
                 $this->{$methodName}($value);
             }
+        }
+
+        if ($this->tmpPath === null) {
+            $this->setTmpPath(sys_get_temp_dir());
         }
     }
 
@@ -281,6 +292,24 @@ class XHProf
     }
 
     /**
+     * Set path to temporary directory to save XHProf results
+     *
+     * @param string|null $path
+     *
+     * @return $this
+     */
+    public function setTmpPath($path)
+    {
+        if (!file_exists($path) || !is_dir($path) || !is_writable($path)) {
+            throw new \RuntimeException('Provided temporary path is not accessible: ' . $path);
+        }
+
+        $this->tmpPath = $path;
+
+        return $this;
+    }
+
+    /**
      * Get URL to the profiler report.
      *
      * @param string $id identifier of profiler run. If not specified will be used value from current run
@@ -380,13 +409,15 @@ class XHProf
         }
 
         if ($type !== self::TYPE_DIFF) {
-            $url = $this->htmlUrlPath . '/' . \str_replace(
+            $url = $this->htmlUrlPath . '/'
+                . \str_replace(
                     ['%%ID%%', '%%NAMESPACE%%'],
                     [$ids[0], $namespace],
                     self::$urlTemplates[$type]
                 );
         } else {
-            $url = $this->htmlUrlPath . '/' . \str_replace(
+            $url = $this->htmlUrlPath . '/'
+                . \str_replace(
                     ['%%ID1%%', '%%ID2%%', '%%NAMESPACE%%'],
                     [$ids[0], $ids[1], $namespace],
                     self::$urlTemplates[$type]
@@ -512,7 +543,7 @@ class XHProf
         include_once($this->libPath . '/utils/xhprof_lib.php');
         include_once($this->libPath . '/utils/xhprof_runs.php');
 
-        $xhprof = new \XHProfRuns_Default();
+        $xhprof = new \XHProfRuns_Default($this->tmpPath);
         $xhprof->save_run($data, $runNamespace, $runId);
 
         $this->runStatus = self::STATUS_STOPPED;

@@ -5,6 +5,14 @@ Changelog
 
 - ... here is new notes ...
 
+#### 1.1.1 - 15.11.2019
+
+- Remove hard requirement of `ext-xhprof` from composer.json, because package can work with `ext-xhprof` and `ext-tideways_xhprof` depending on PHP version.
+- Added `suggest` block with hints about proper extensions.
+- XHProf will be configured on bootstrap stage before automatic run. This will allow to have configured XHProf instance from component if profiler will be executed manually in another place.
+- `XHProfComponent::stopProfiling()` now returns links to reports instead of void.
+- Added param `tmpPath` in component to define temporary directory for profiling results.
+
 
 #### 1.1.0 - 13.03.2018
 

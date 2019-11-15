@@ -7,6 +7,7 @@ use yii\base\BootstrapInterface;
 use yii\base\ErrorException;
 use yii\helpers\FileHelper;
 use yii\helpers\Json;
+use yii\web\Request;
 use yii\web\View;
 
 /**
@@ -19,7 +20,7 @@ use yii\web\View;
  * available by default in XHProf UI (e.g. http://some.path.to/xhprof_html)
  *
  * @author Vadym Stepanov <vadim.stepanov.ua@gmail.com>
- * @date 16.11.2017
+ * @date 15.11.2019
  */
 class XHProfComponent extends \yii\base\Component implements BootstrapInterface
 {
@@ -75,7 +76,7 @@ class XHProfComponent extends \yii\base\Component implements BootstrapInterface
 
     /**
      * If this component is used without yii2-debug extension, set true to show overlay with links to report and
-     * callgraph. Otherwise, set false and add panel to yii2-debug (see readme for more details).
+     * call graph. Otherwise, set false and add panel to yii2-debug (see readme for more details).
      *
      * @var bool
      */
@@ -94,6 +95,13 @@ class XHProfComponent extends \yii\base\Component implements BootstrapInterface
      * @var string
      */
     public $htmlReportBaseUrl = '/xhprof_html';
+
+    /**
+     * Default directory to store XHProf runs. If not specified - will use 'sys_get_temp_dir()' value
+     *
+     * @var string|null
+     */
+    public $tmpPath;
 
     /**
      * Enable/disable flag XHPROF_FLAGS_NO_BUILTINS (see http://php.net/manual/ru/xhprof.constants.php)
@@ -162,13 +170,6 @@ class XHProfComponent extends \yii\base\Component implements BootstrapInterface
      */
     public function bootstrap($app)
     {
-        if (!$this->enabled
-            || ($this->triggerGetParam !== null && $app->request->getQueryParam($this->triggerGetParam) === null)
-            || $this->isRouteBlacklisted()
-        ) {
-            return;
-        }
-
         if (empty($this->libPath)) {
             throw new ErrorException('Lib path cannot be empty');
         }
@@ -178,7 +179,7 @@ class XHProfComponent extends \yii\base\Component implements BootstrapInterface
             $libPath = Yii::getAlias($libPath);
         }
 
-        XHProf::getInstance()->configure([
+        $config = [
             'flagNoBuiltins' => $this->flagNoBuiltins,
             'flagCpu' => $this->flagCpu,
             'flagMemory' => $this->flagMemory,
@@ -186,13 +187,25 @@ class XHProfComponent extends \yii\base\Component implements BootstrapInterface
             'runNamespace' => Yii::$app->id,
             'libPath' => $libPath,
             'htmlUrlPath' => $this->getReportBaseUrl(),
-        ]);
+        ];
+        if ($this->tmpPath) {
+            $config['tmpPath'] = $this->tmpPath;
+        }
+        XHProf::getInstance()->configure($config);
 
-        if ($this->autoStart) {
-            XHProf::getInstance()->run();
+        if (!$this->enabled
+            || PHP_SAPI === 'cli'
+            || ($this->triggerGetParam !== null && $app->request->getQueryParam($this->triggerGetParam) === null)
+            || $this->isRouteBlacklisted()
+        ) {
+            return;
         }
 
-        if ($this->showOverlay && !$app->request->isAjax) {
+        if ($this->autoStart) {
+            $this->beginProfiling();
+        }
+
+        if ($app->request instanceof Request && $this->showOverlay && !$app->request->isAjax) {
             OverlayAsset::register($app->view);
             $app->view->on(View::EVENT_END_BODY, [$this, 'appendResultsOverlay']);
         }
@@ -209,7 +222,7 @@ class XHProfComponent extends \yii\base\Component implements BootstrapInterface
     {
         $result = false;
         $routes = $this->blacklistedRoutes;
-        if (\is_a(Yii::$app, yii\web\Application::className())) {
+        if (Yii::$app instanceof \yii\web\Application) {
             $requestRoute = Yii::$app->getUrlManager()->parseRequest(Yii::$app->getRequest())[0];
         } else {
             $request = Yii::$app->getRequest()->getParams();
@@ -243,22 +256,25 @@ class XHProfComponent extends \yii\base\Component implements BootstrapInterface
     /**
      * Stop profiling and save report
      *
-     * @return void
+     * @return array List of urls to report and callgraph if XHProf was active
      */
     public function stopProfiling()
     {
         $XHProf = XHProf::getInstance();
+        $report = [];
 
         if ($XHProf->isStarted()
             && $XHProf->getStatus() === XHProf::STATUS_RUNNING
             && ($this->autoStop || (!$this->autoStop && $this->forceStop))
         ) {
-            $XHProf->stop();
+            $report = $XHProf->stop();
         }
 
         if ($this->isActive()) {
             $this->saveReport();
         }
+
+        return $report;
     }
 
     /**
@@ -367,7 +383,7 @@ class XHProfComponent extends \yii\base\Component implements BootstrapInterface
         }
 
         if ($this->reportInfo === null) {
-            if (\is_a(Yii::$app, yii\web\Application::className())) {
+            if (Yii::$app instanceof yii\web\Application) {
                 $request = Yii::$app->getRequest();
                 $url = $request->getHostInfo() . $request->getUrl();
             } else {

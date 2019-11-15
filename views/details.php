@@ -6,9 +6,9 @@
 /* @var array $run */
 /* @var bool $enabled */
 ?>
-<h3>XHProf Reports</h3>
+<h2>XHProf Reports</h2>
 
-<h4>Current profiler run:</h4>
+<h3>Current profiler run:</h3>
 <?php if ($enabled): ?>
     <ul>
         <li><a href="<?php echo $urls['report'] ?>" target="_blank">Detailed report</a></li>
@@ -18,7 +18,7 @@
     <p>XHProf was not used for this request.</p>
 <?php endif; ?>
 
-<h4>Previous runs (<?php echo $panel->getComponent()->maxReportsCount ?> items max):</h4>
+<h3>Previous runs (<?php echo $panel->getComponent()->maxReportsCount ?> items max):</h3>
 <p>You can open report, callgraph or diff with current run for any of the previous profiler runs. Also you can compare
     any previous runs between themselves (check radios and click on button "Compare selected").</p>
 
@@ -65,6 +65,6 @@
     </tbody>
 </table>
 
-<button class="btn btn-default disabled xhprof-compare">Compare selected</button>
+<button class="btn btn-primary disabled xhprof-compare">Compare selected</button>
 
 <p></p>

@@ -1,34 +1,38 @@
 {
-  "name": "stevad/yii2-xhprof",
-  "description": "Simple extension to profile Yii Framework 2.x applications with Facebook XHProf",
-  "keywords": [
-    "yii",
-    "yii2",
-    "extension",
-    "profiling",
-    "debug",
-    "xhprof"
-  ],
-  "homepage": "https://github.com/stevad/yii2-xhprof",
-  "type": "library",
-  "license": "BSD-3-Clause",
-  "require": {
-    "php": ">=5.6.0",
-    "ext-xhprof": "*",
-    "yiisoft/yii2": "2.0.*"
-  },
-  "require-dev": {
-    "yiisoft/yii2-debug": ">=2.0.6"
-  },
-  "authors": [
-    {
-      "name": "Vadym Stepanov",
-      "email": "vadim.stepanov.ua@gmail.com"
+    "name": "stevad/yii2-xhprof",
+    "description": "Simple extension to profile Yii Framework 2.x applications with Facebook XHProf",
+    "keywords": [
+        "yii",
+        "yii2",
+        "extension",
+        "profiling",
+        "debug",
+        "xhprof"
+    ],
+    "homepage": "https://github.com/stevad/yii2-xhprof",
+    "type": "library",
+    "license": "BSD-3-Clause",
+    "require": {
+        "php": ">=5.6.0",
+        "ext-xhprof": "*",
+        "yiisoft/yii2": "2.0.*"
+    },
+    "require-dev": {
+        "yiisoft/yii2-debug": ">=2.0.6"
+    },
+    "suggest": {
+        "ext-xhprof": "* - for PHP < 7.0",
+        "ext-tideways_xhprof": "* - for PHP >= 7.0"
+    },
+    "authors": [
+        {
+            "name": "Vadym Stepanov",
+            "email": "vadim.stepanov.ua@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "stevad\\xhprof\\": ""
+        }
     }
-  ],
-  "autoload": {
-    "psr-4": {
-      "stevad\\xhprof\\": ""
-    }
-  }
 }

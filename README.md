@@ -1,6 +1,10 @@
 yii2-xhprof
 =================
 
+> [!WARNING]
+> This repository is not maintained anymore!
+> Consider using better tools: [Buggregator](https://buggregator.dev), [Blackfire](https://www.blackfire.io), etc.
+
 Simple extension to use XHProf with Yii Framework 2.x. This is the updated version of [yii-xhprof](https://github.com/stevad/yii-xhprof) extension for Yii Framework 1.x.
 
 Bundled with debug panel for official [yii2-debug](https://github.com/yiisoft/yii2-debug) extension.
